@@ -242,5 +242,7 @@ http://localhost:3000
 ---
 
 # 👨‍💻 Autor
+```
 Christian Axel Moreno Flores
+```
 Proyecto desarrollado como práctica académica utilizando NestJS, PostgreSQL/PostGIS y Mapbox.
