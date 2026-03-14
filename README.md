@@ -1,98 +1,246 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# 🐾 PetRadar API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+PetRadar es una API REST desarrollada con **NestJS** que permite registrar **mascotas perdidas** y **mascotas encontradas**.
+Cuando se registra una mascota encontrada, el sistema busca automáticamente mascotas perdidas dentro de un radio de **500 metros** usando **PostGIS** y envía una notificación por correo electrónico.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+# 🚀 Tecnologías utilizadas
 
-## Project setup
+- 🧠 NestJS
+- 🔷 TypeScript
+- 🐘 PostgreSQL
+- 🌍 PostGIS
+- 🗂 TypeORM
+- ✉️ Nodemailer
+- 🐳 Docker
+- 🗺 Mapbox Static API
 
-```bash
-$ npm install
+---
+
+# ⚙️ Funcionalidad principal
+
+El sistema permite:
+
+1️⃣ Registrar una mascota perdida  
+2️⃣ Registrar una mascota encontrada  
+3️⃣ Buscar coincidencias geográficas en un radio de **500 metros**  
+4️⃣ Enviar una notificación por correo cuando se detecta una posible coincidencia  
+
+La búsqueda espacial se realiza usando **PostGIS**:
+
+```
+ST_DWithin(location::geography, point::geography, 500)
 ```
 
-## Compile and run the project
+Esto permite calcular la distancia **en metros** entre dos coordenadas.
 
-```bash
-# development
-$ npm run start
+---
 
-# watch mode
-$ npm run start:dev
+# 🗄 Estructura de la base de datos
 
-# production mode
-$ npm run start:prod
+## 🐶 Tabla: lost_pets
+
+Mascotas reportadas como perdidas.
+
+Campos principales:
+
+- name
+- species
+- breed
+- color
+- size
+- description
+- photo_url
+- owner_name
+- owner_email
+- owner_phone
+- location (geometry Point)
+- address
+- lost_date
+- is_active
+
+---
+
+## 🐕 Tabla: found_pets
+
+Mascotas reportadas como encontradas.
+
+Campos principales:
+
+- species
+- breed
+- color
+- size
+- description
+- photo_url
+- finder_name
+- finder_email
+- finder_phone
+- location (geometry Point)
+- address
+- found_date
+
+---
+
+# 🔌 Endpoints
+
+## 🐾 Registrar mascota perdida
+
+```
+POST /lost-pets
 ```
 
-## Run tests
+Ejemplo:
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```json
+{
+  "name": "Max",
+  "species": "perro",
+  "breed": "labrador",
+  "color": "negro",
+  "size": "grande",
+  "description": "Trae collar rojo",
+  "photo_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1",
+  "owner_name": "Juan",
+  "owner_email": "juan@example.com",
+  "owner_phone": "4771234567",
+  "lat": 21.1214,
+  "lng": -101.6823,
+  "address": "León, Guanajuato",
+  "lost_date": "2026-03-13T12:00:00.000Z"
+}
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 🔎 Registrar mascota encontrada
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```
+POST /found-pets
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Ejemplo:
 
-## Resources
+```json
+{
+  "species": "perro",
+  "breed": "labrador",
+  "color": "negro",
+  "size": "grande",
+  "description": "Muy tranquilo, trae collar rojo",
+  "photo_url": "https://images.unsplash.com/photo-1601758228041-f3b2795255f1",
+  "finder_name": "Carlos",
+  "finder_email": "carlos@example.com",
+  "finder_phone": "4778889999",
+  "lat": 21.1215,
+  "lng": -101.6824,
+  "address": "León, Guanajuato",
+  "found_date": "2026-03-13T16:00:00.000Z"
+}
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# 🔄 Flujo del sistema
 
-## Support
+```
+Registrar mascota encontrada
+        ↓
+Guardar registro en found_pets
+        ↓
+Buscar mascotas perdidas activas con ST_DWithin
+        ↓
+Calcular distancia con ST_Distance
+        ↓
+Enviar correo con posible coincidencia
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+📧 El correo incluye:
 
-## Stay in touch
+- Datos de la mascota encontrada
+- Datos de contacto de quien la encontró
+- Distancia aproximada
+- Mapa generado con Mapbox mostrando ambas ubicaciones
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+# 🔑 Variables de entorno
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Crear un archivo `.env` en la raíz del proyecto.
+
+Ejemplo:
+
+```
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=petradar
+
+MAILER_EMAIL=your_email@gmail.com
+MAILER_PASSWORD=your_app_password
+MAILER_SERVICE=gmail
+
+MAIL_TO=notifications@example.com
+
+MAPBOX_TOKEN=your_mapbox_token
+```
+
+---
+
+# 🛠 Instalación
+
+Clonar repositorio
+
+```
+git clone https://github.com/tuusuario/petradar.git
+cd petradar
+```
+
+Instalar dependencias
+
+```
+npm install
+```
+
+---
+
+# 🐳 Base de datos
+
+Levantar contenedor de PostgreSQL + PostGIS
+
+```
+docker compose up -d
+```
+
+Ejecutar migraciones
+
+```
+npm run migration:run
+```
+
+---
+
+# ▶️ Ejecutar API
+
+Modo desarrollo
+
+```
+npm run start:dev
+```
+
+La API correrá en:
+
+```
+http://localhost:3000
+```
+
+---
+
+# 👨‍💻 Autor
+Christian Axel Moreno Flores
+Proyecto desarrollado como práctica académica utilizando NestJS, PostgreSQL/PostGIS y Mapbox.
