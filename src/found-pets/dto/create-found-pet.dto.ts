@@ -1,21 +1,18 @@
 import {
-  IsString,
-  IsEmail,
-  IsOptional,
-  IsNumber,
   IsDateString,
+  IsEmail,
+  IsNumber,
+  IsOptional,
+  IsString,
 } from 'class-validator';
 
-export class CreateLostPetDto {
-
-  @IsString()
-  name: string;
-
+export class CreateFoundPetDto {
   @IsString()
   species: string;
 
+  @IsOptional()
   @IsString()
-  breed: string;
+  breed?: string;
 
   @IsString()
   color: string;
@@ -31,13 +28,13 @@ export class CreateLostPetDto {
   photo_url?: string;
 
   @IsString()
-  owner_name: string;
+  finder_name: string;
 
   @IsEmail()
-  owner_email: string;
+  finder_email: string;
 
   @IsString()
-  owner_phone: string;
+  finder_phone: string;
 
   @IsNumber()
   lat: number;
@@ -49,5 +46,5 @@ export class CreateLostPetDto {
   address: string;
 
   @IsDateString()
-  lost_date: string;
+  found_date: string;
 }
