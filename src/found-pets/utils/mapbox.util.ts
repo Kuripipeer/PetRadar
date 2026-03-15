@@ -11,3 +11,9 @@ export const buildStaticMapUrl = (
 
   return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${lostMarker},${foundMarker}/auto/600x400?access_token=${envs.MAPBOX_TOKEN}`;
 };
+
+export const buildSinglePointMapUrl = (lng: number, lat: number) => {
+  const marker = `pin-s-a+3f51b5(${lng},${lat})`;
+
+  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${marker}/${lng},${lat},15/600x400?access_token=${envs.MAPBOX_TOKEN}`;
+};

@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { envs } from '../config/envs';
 import { FoundPetEntity } from '../core/entities/found-pet.entity';
 import { LostPetEntity } from '../core/entities/lost-pet.entity';
 import { EmailService } from '../email/email.service';
 import { CreateFoundPetDto } from './dto/create-found-pet.dto';
 import { buildFoundPetMatchTemplate } from './templates/found-pet-match.template';
-import { buildStaticMapUrl } from './utils/mapbox.util';
-import { envs } from 'src/config/envs';
+import { buildFoundPetNotificationTemplate } from './templates/found-pet-notification.template';
+import {
+  buildSinglePointMapUrl,
+  buildStaticMapUrl,
+} from './utils/mapbox.util';
 
 @Injectable()
 export class FoundPetsService {
@@ -47,18 +51,13 @@ export class FoundPetsService {
       createFoundPetDto.lat,
     );
 
-    for (const lostPet of matches) {
-      const [lostLng, lostLat] = lostPet.location.coordinates;
-      const mapUrl = buildStaticMapUrl(
-        lostLng,
-        lostLat,
+    if (matches.length === 0) {
+      const mapUrl = buildSinglePointMapUrl(
         createFoundPetDto.lng,
         createFoundPetDto.lat,
       );
 
-      const html = buildFoundPetMatchTemplate({
-        ownerName: lostPet.owner_name,
-        lostAddress: lostPet.address,
+      const html = buildFoundPetNotificationTemplate({
         foundAddress: createFoundPetDto.address,
         foundPet: {
           species: createFoundPetDto.species,
@@ -66,6 +65,7 @@ export class FoundPetsService {
           color: createFoundPetDto.color,
           size: createFoundPetDto.size,
           description: createFoundPetDto.description,
+          photo_url: createFoundPetDto.photo_url,
         },
         finder: {
           name: createFoundPetDto.finder_name,
@@ -73,14 +73,59 @@ export class FoundPetsService {
           phone: createFoundPetDto.finder_phone,
         },
         mapUrl,
-        distance: Number(lostPet.distance),
       });
 
-      await this.emailService.sendEmail(
-        envs.MAIL_TO,
-        'PetRadar - Posible coincidencia encontrada',
-        html,
-      );
+      try {
+        await this.emailService.sendEmail(
+          envs.MAIL_TO,
+          '📍 Nueva mascota encontrada',
+          html,
+        );
+      } catch (error) {
+        console.error('Error sending general notification email:', error);
+      }
+    } else {
+      for (const lostPet of matches) {
+        const [lostLng, lostLat] = lostPet.location.coordinates;
+
+        const mapUrl = buildStaticMapUrl(
+          lostLng,
+          lostLat,
+          createFoundPetDto.lng,
+          createFoundPetDto.lat,
+        );
+
+        const html = buildFoundPetMatchTemplate({
+          ownerName: lostPet.owner_name,
+          lostAddress: lostPet.address,
+          foundAddress: createFoundPetDto.address,
+          foundPet: {
+            species: createFoundPetDto.species,
+            breed: createFoundPetDto.breed,
+            color: createFoundPetDto.color,
+            size: createFoundPetDto.size,
+            description: createFoundPetDto.description,
+            photo_url: createFoundPetDto.photo_url,
+          },
+          finder: {
+            name: createFoundPetDto.finder_name,
+            email: createFoundPetDto.finder_email,
+            phone: createFoundPetDto.finder_phone,
+          },
+          mapUrl,
+          distance: Number(lostPet.distance),
+        });
+
+        try {
+          await this.emailService.sendEmail(
+            envs.MAIL_TO,
+            '🐾 Posible coincidencia encontrada',
+            html,
+          );
+        } catch (error) {
+          console.error('Error sending match email:', error);
+        }
+      }
     }
 
     return {

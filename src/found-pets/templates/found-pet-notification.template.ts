@@ -1,6 +1,4 @@
-interface BuildFoundPetMatchTemplateParams {
-  ownerName: string;
-  lostAddress: string;
+interface BuildFoundPetNotificationTemplateParams {
   foundAddress: string;
   foundPet: {
     species: string;
@@ -16,30 +14,24 @@ interface BuildFoundPetMatchTemplateParams {
     phone: string;
   };
   mapUrl: string;
-  distance: number;
 }
 
 const DEFAULT_PET_IMAGE =
   'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1548&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
-export const buildFoundPetMatchTemplate = ({
-  ownerName,
-  lostAddress,
+export const buildFoundPetNotificationTemplate = ({
   foundAddress,
   foundPet,
   finder,
   mapUrl,
-  distance,
-}: BuildFoundPetMatchTemplateParams) => {
+}: BuildFoundPetNotificationTemplateParams) => {
   const petImage = foundPet.photo_url || DEFAULT_PET_IMAGE;
 
   return `
     <div style="font-family: Arial, sans-serif; color: #222; max-width: 700px; margin: 0 auto;">
-      <h2>🐾 Posible coincidencia encontrada para tu mascota</h2>
+      <h2>📍 Nueva mascota encontrada</h2>
 
-      <p>Hola <strong>${ownerName}</strong>,</p>
-
-      <p>Se registró una mascota encontrada cerca del lugar donde reportaste la pérdida de tu mascota.</p>
+      <p>Se registró una nueva mascota encontrada en el sistema.</p>
 
       <h3>Foto de la mascota encontrada</h3>
       <p>
@@ -66,11 +58,9 @@ export const buildFoundPetMatchTemplate = ({
         <li><strong>Teléfono:</strong> ${finder.phone}</li>
       </ul>
 
-      <h3>Ubicaciones</h3>
+      <h3>Ubicación donde fue encontrada</h3>
       <ul>
-        <li><strong>Donde se perdió:</strong> ${lostAddress}</li>
-        <li><strong>Donde se encontró:</strong> ${foundAddress}</li>
-        <li><strong>Distancia aproximada:</strong> ${distance.toFixed(2)} metros</li>
+        <li><strong>Dirección:</strong> ${foundAddress}</li>
       </ul>
 
       <h3>Mapa de referencia</h3>
