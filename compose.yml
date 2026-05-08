@@ -1,4 +1,26 @@
 services:
+
+  pet-radar-api:
+    image: ghcr.io/kuripipeer/pet-radar:latest
+    container_name: PetRadarAPI
+    ports:
+      - 3000:3000
+    environment:
+      - PORT=${PORT}
+      - MAILER_EMAIL=${MAILER_EMAIL}
+      - MAILER_PASSWORD=${MAILER_PASSWORD}
+      - MAILER_SERVICE=${MAILER_SERVICE}
+      - MAPBOX_TOKEN=${MAPBOX_TOKEN}
+      - MAIL_TO=${MAIL_TO}
+      - DB_HOST=postgres
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - APPINSIGHTS_CONNECTION_STRING=${APPINSIGHTS_CONNECTION_STRING}
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT}
+
   postgres:
     image: postgis/postgis:16-master
     container_name: PetRadarDB
