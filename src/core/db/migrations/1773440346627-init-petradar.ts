@@ -1,20 +1,31 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class InitPetradar1773440346627 implements MigrationInterface {
-    name = 'InitPetradar1773440346627'
+  name = 'InitPetradar1773440346627';
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`CREATE TABLE "lost_pets" ("id" SERIAL NOT NULL, "name" character varying(100) NOT NULL, "species" character varying(50) NOT NULL, "breed" character varying(100) NOT NULL, "color" character varying(50) NOT NULL, "size" character varying(20) NOT NULL, "description" text NOT NULL, "photo_url" character varying, "owner_name" character varying(100) NOT NULL, "owner_email" character varying(150) NOT NULL, "owner_phone" character varying(30) NOT NULL, "location" geometry(Point,4326) NOT NULL, "address" character varying(255) NOT NULL, "lost_date" TIMESTAMP NOT NULL, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_4ba852a354b48000bcb3faaaea5" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE INDEX "IDX_181232cdf4d308758a59ee08e6" ON "lost_pets" USING GiST ("location") `);
-        await queryRunner.query(`CREATE TABLE "found_pets" ("id" SERIAL NOT NULL, "species" character varying(50) NOT NULL, "breed" character varying(100), "color" character varying(50) NOT NULL, "size" character varying(20) NOT NULL, "description" text NOT NULL, "photo_url" character varying, "finder_name" character varying(100) NOT NULL, "finder_email" character varying(150) NOT NULL, "finder_phone" character varying(30) NOT NULL, "location" geometry(Point,4326) NOT NULL, "address" character varying(255) NOT NULL, "found_date" TIMESTAMP NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_1e8aeb0b37dd97bfce972552b8d" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE INDEX "IDX_154843e3e8c177eccc04b2a3d3" ON "found_pets" USING GiST ("location") `);
-    }
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `CREATE TABLE "lost_pets" ("id" SERIAL NOT NULL, "name" character varying(100) NOT NULL, "species" character varying(50) NOT NULL, "breed" character varying(100) NOT NULL, "color" character varying(50) NOT NULL, "size" character varying(20) NOT NULL, "description" text NOT NULL, "photo_url" character varying, "owner_name" character varying(100) NOT NULL, "owner_email" character varying(150) NOT NULL, "owner_phone" character varying(30) NOT NULL, "location" geometry(Point,4326) NOT NULL, "address" character varying(255) NOT NULL, "lost_date" TIMESTAMP NOT NULL, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_4ba852a354b48000bcb3faaaea5" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_181232cdf4d308758a59ee08e6" ON "lost_pets" USING GiST ("location") `,
+    );
+    await queryRunner.query(
+      `CREATE TABLE "found_pets" ("id" SERIAL NOT NULL, "species" character varying(50) NOT NULL, "breed" character varying(100), "color" character varying(50) NOT NULL, "size" character varying(20) NOT NULL, "description" text NOT NULL, "photo_url" character varying, "finder_name" character varying(100) NOT NULL, "finder_email" character varying(150) NOT NULL, "finder_phone" character varying(30) NOT NULL, "location" geometry(Point,4326) NOT NULL, "address" character varying(255) NOT NULL, "found_date" TIMESTAMP NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_1e8aeb0b37dd97bfce972552b8d" PRIMARY KEY ("id"))`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX "IDX_154843e3e8c177eccc04b2a3d3" ON "found_pets" USING GiST ("location") `,
+    );
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP INDEX "public"."IDX_154843e3e8c177eccc04b2a3d3"`);
-        await queryRunner.query(`DROP TABLE "found_pets"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_181232cdf4d308758a59ee08e6"`);
-        await queryRunner.query(`DROP TABLE "lost_pets"`);
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `DROP INDEX "public"."IDX_154843e3e8c177eccc04b2a3d3"`,
+    );
+    await queryRunner.query(`DROP TABLE "found_pets"`);
+    await queryRunner.query(
+      `DROP INDEX "public"."IDX_181232cdf4d308758a59ee08e6"`,
+    );
+    await queryRunner.query(`DROP TABLE "lost_pets"`);
+  }
 }

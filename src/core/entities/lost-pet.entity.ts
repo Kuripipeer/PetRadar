@@ -9,7 +9,6 @@ import {
 
 @Entity('lost_pets')
 export class LostPetEntity {
-
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -65,13 +64,13 @@ export class LostPetEntity {
 
   @CreateDateColumn({
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
   })
   created_at: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP'
+    default: () => 'CURRENT_TIMESTAMP',
   })
   updated_at: Date;
 }

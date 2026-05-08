@@ -3,9 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LostPetEntity } from '../core/entities/lost-pet.entity';
 import { LostPetsController } from './lost-pets.controller';
 import { LostPetsService } from './lost-pets.service';
+import { CacheModule } from '../cache/cache.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([LostPetEntity])],
+  imports: [
+    TypeOrmModule.forFeature([LostPetEntity]),
+    CacheModule,
+],
   controllers: [LostPetsController],
   providers: [LostPetsService],
   exports: [LostPetsService],

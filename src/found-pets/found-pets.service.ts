@@ -8,10 +8,11 @@ import { EmailService } from '../email/email.service';
 import { CreateFoundPetDto } from './dto/create-found-pet.dto';
 import { buildFoundPetMatchTemplate } from './templates/found-pet-match.template';
 import { buildFoundPetNotificationTemplate } from './templates/found-pet-notification.template';
-import {
-  buildSinglePointMapUrl,
-  buildStaticMapUrl,
-} from './utils/mapbox.util';
+import { buildSinglePointMapUrl, buildStaticMapUrl } from './utils/mapbox.util';
+import { CacheService } from 'src/cache/cache.service';
+const CACHE_KEY_FOUND_PETS = 'found-pets:all';
+const CACHE_KEY_LOST_PETS = 'lost-pets:active';
+const CACHE_TTL_SECONDS = 60;
 
 @Injectable()
 export class FoundPetsService {
@@ -23,6 +24,7 @@ export class FoundPetsService {
     private readonly lostPetRepository: Repository<LostPetEntity>,
 
     private readonly emailService: EmailService,
+    private readonly cacheService: CacheService,
   ) {}
 
   async create(createFoundPetDto: CreateFoundPetDto) {
@@ -45,6 +47,8 @@ export class FoundPetsService {
     });
 
     const savedFoundPet = await this.foundPetRepository.save(foundPet);
+    await this.cacheService.del(CACHE_KEY_FOUND_PETS);
+    await this.cacheService.del(CACHE_KEY_LOST_PETS);
 
     const matches = await this.findNearbyLostPets(
       createFoundPetDto.lng,
@@ -136,11 +140,15 @@ export class FoundPetsService {
   }
 
   async findAll() {
-    return await this.foundPetRepository.find({
-      order: {
-        id: 'DESC',
-      },
+    const cachedFoundPets = await this.cacheService.get<FoundPetEntity[]>(CACHE_KEY_FOUND_PETS);
+    if (cachedFoundPets) return cachedFoundPets;
+
+    const foundPets = await this.foundPetRepository.find({
+      order: { id: 'DESC' },
     });
+
+    await this.cacheService.set(CACHE_KEY_FOUND_PETS, foundPets, CACHE_TTL_SECONDS);
+    return foundPets;
   }
 
   private async findNearbyLostPets(lng: number, lat: number) {

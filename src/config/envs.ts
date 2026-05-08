@@ -16,4 +16,7 @@ export const envs = {
   DB_PASSWORD: env.get('DB_PASSWORD').required().asString(),
 
   MAIL_TO: env.get('MAIL_TO').default('').asString(),
+
+  REDIS_HOST: env.get("REDIS_HOST").required().asString(),
+  REDIS_PORT: env.get("REDIS_PORT").required().asPortNumber()
 };

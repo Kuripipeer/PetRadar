@@ -3,12 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { LostPetEntity } from '../core/entities/lost-pet.entity';
 import { CreateLostPetDto } from './dto/create-lost-pet.dto';
+import { CacheService } from '../cache/cache.service';
 
+const CACHE_KEY_LOST_PETS = 'lost-pets:active';
+const CACHE_TTL_SECONDS = 60;
 @Injectable()
 export class LostPetsService {
   constructor(
     @InjectRepository(LostPetEntity)
     private readonly lostPetRepository: Repository<LostPetEntity>,
+    private readonly cacheService: CacheService,
   ) {}
 
   async create(createLostPetDto: CreateLostPetDto) {
@@ -32,14 +36,21 @@ export class LostPetsService {
       },
     });
 
-    return await this.lostPetRepository.save(lostPet);
+    const savedLostPet = await this.lostPetRepository.save(lostPet);
+    await this.cacheService.del(CACHE_KEY_LOST_PETS);
+    return savedLostPet;
   }
 
   async findAll() {
-    return await this.lostPetRepository.find({
-      order: {
-        id: 'DESC',
-      },
+    const cachedLostPets = await this.cacheService.get<LostPetEntity[]>(CACHE_KEY_LOST_PETS);
+    if (cachedLostPets) return cachedLostPets;
+
+    const lostPets = await this.lostPetRepository.find({
+      where: { is_active: true },
+      order: { id: 'DESC' },
     });
+
+    await this.cacheService.set(CACHE_KEY_LOST_PETS, lostPets, CACHE_TTL_SECONDS);
+    return lostPets;
   }
 }
