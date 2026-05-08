@@ -18,5 +18,6 @@ export const envs = {
   MAIL_TO: env.get('MAIL_TO').default('').asString(),
 
   REDIS_HOST: env.get("REDIS_HOST").required().asString(),
-  REDIS_PORT: env.get("REDIS_PORT").required().asPortNumber()
+  REDIS_PORT: env.get("REDIS_PORT").required().asPortNumber(),
+  APPINSIGHTS_CONNECTION_STRING: env.get("APPINSIGHTS_CONNECTION_STRING").required().asString(),
 };

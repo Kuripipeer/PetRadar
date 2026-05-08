@@ -4,6 +4,7 @@ import { envs } from './config/envs';
 import { EmailModule } from './email/email.module';
 import { FoundPetsModule } from './found-pets/found-pets.module';
 import { LostPetsModule } from './lost-pets/lost-pets.module';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { LostPetsModule } from './lost-pets/lost-pets.module';
     EmailModule,
     LostPetsModule,
     FoundPetsModule,
+    CacheModule,
   ],
 })
 export class AppModule {}
