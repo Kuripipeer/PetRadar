@@ -8,14 +8,15 @@ Cuando se registra una mascota encontrada, el sistema busca automáticamente mas
 
 # 🚀 Tecnologías utilizadas
 
-- 🧠 NestJS
-- 🔷 TypeScript
-- 🐘 PostgreSQL
-- 🌍 PostGIS
-- 🗂 TypeORM
-- ✉️ Nodemailer
-- 🐳 Docker
-- 🗺 Mapbox Static API
+- NestJS
+- TypeORM
+- PostgreSQL
+- PostGIS
+- Redis
+- Azure Application Insights
+- Docker
+- GitHub Actions
+- GitHub Container Registry
 
 ---
 
@@ -237,6 +238,143 @@ La API correrá en:
 
 ```
 http://localhost:3000
+```
+
+## Nuevas funcionalidades implementadas
+
+### Redis Cache
+Se implementó Redis para optimizar las consultas de endpoints GET y reducir la carga sobre PostgreSQL.
+
+Endpoints con caché:
+
+- `GET /lost-pets`
+- `GET /found-pets`
+
+Funcionamiento:
+
+- Si la información existe en Redis, se devuelve desde caché.
+- Si no existe, se consulta PostgreSQL y se almacena temporalmente.
+- Al crear un nuevo registro (`POST`) se invalida la caché automáticamente.
+
+---
+
+### Application Insights
+Se integró Application Insights de Azure para monitoreo y telemetría de la API.
+
+Monitoreo disponible:
+
+- Requests realizadas
+- Tiempo de respuesta
+- Excepciones
+- Dependencias
+- Logs personalizados
+
+Esto permite supervisar el comportamiento de la API en tiempo real.
+
+---
+
+### Docker
+La API fue dockerizada para facilitar despliegue y portabilidad.
+
+Construcción de imagen:
+
+```bash
+docker build -t pet-radar .
+```
+
+Ejecución:
+
+```bash
+docker compose up -d
+```
+
+Servicios incluidos:
+
+- API NestJS
+- PostgreSQL + PostGIS
+- Redis
+
+---
+
+### GitHub Container Registry (GHCR)
+Se configuró GitHub Actions para construir y publicar automáticamente la imagen Docker en GHCR.
+
+Workflow automatizado:
+
+- Build de imagen Docker
+- Push a GitHub Container Registry
+- Versionado por SHA
+- Tag latest
+
+Imagen publicada:
+
+```txt
+ghcr.io/kuripipeer/pet-radar:latest
+```
+
+---
+
+## Búsqueda por radio (PostGIS)
+
+Cuando se crea un registro en:
+
+```http
+POST /found-pets
+```
+
+El sistema busca automáticamente coincidencias en:
+
+```http
+lost_pets
+```
+
+Condiciones:
+
+- Solo mascotas activas (`is_active = true`)
+- Radio máximo de 500 metros
+- Comparación geográfica usando PostGIS
+
+Función utilizada:
+
+```sql
+ST_DWithin(
+    lost_pet.location::geography,
+    ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography,
+    500
+)
+```
+
+Esto permite detectar coincidencias cercanas entre mascotas perdidas y encontradas.
+
+---
+
+## Docker Compose
+
+Levantar servicios:
+
+```bash
+docker compose up -d
+```
+
+Servicios:
+
+- PetRadarAPI
+- PetRadarDB
+- PetRadarRedis
+
+---
+
+## GitHub Actions
+
+Cada push a la rama `master` ejecuta:
+
+- Build automático
+- Publicación automática en GHCR
+
+Workflow:
+
+```txt
+.github/workflows/docker-publish.yml
 ```
 
 ---
